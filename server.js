@@ -1,13 +1,30 @@
 const express = require("express");
-
 const app = express();
 
 let lastAbility = null;
+let scores = {}; // 🏆 نقاط اللاعبين
 
-// 🏆
+// 🏆 تسجيل الفوز
 app.get("/win", (req, res) => {
-    console.log("Winner:", req.query.winner);
-    res.send("ok");
+    const winner = req.query.winner;
+
+    if(!scores[winner]) scores[winner] = 0;
+
+    scores[winner] += 10;
+
+    console.log("Winner:", winner);
+    console.log("Scores:", scores);
+
+    res.send("");
+});
+
+// 📊 ليدر بورد
+app.get("/leaderboard", (req, res) => {
+    let sorted = Object.entries(scores)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,5);
+
+    res.json(sorted);
 });
 
 // ⚡ abilities
@@ -20,14 +37,14 @@ app.get("/ability", (req, res) => {
         time: Date.now()
     };
 
-    res.send("ok");
+    res.send("");
 });
 
-// 📤 send ability
 app.get("/ability-data", (req, res) => {
     res.json(lastAbility || {});
 });
 
-app.listen(3001, () => {
-    console.log("Server running on port 3001");
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log("Server running on port", PORT);
 });
